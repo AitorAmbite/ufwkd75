@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=d75-studio
+Exec=d75-studio
+Icon=d75-studio
+Categories=Development;
+Terminal=false
+Keywords=wails
+Version=1.0
+StartupNotify=false

@@ -1,0 +1,114 @@
+@font-face {
+  font-family: "Inter";
+  font-weight: 400 700;
+  src: url("/Inter-Medium.ttf") format("truetype");
+}
+
+:root {
+  --bg: #0d0d0e;
+  --bg-elev: #111113;
+  --surface: #151517;
+  --surface-2: #1b1b1e;
+  --surface-3: #242428;
+  --border: #26262b;
+  --border-strong: #3a3a41;
+  --text: #ececef;
+  --text-2: #a1a1aa;
+  --text-3: #6a6a74;
+  --accent: #8b7dff;
+  --accent-2: #a99fff;
+  --accent-soft: #8b7dff1f;
+  --success: #3ddc97;
+  --warning: #ffb547;
+  --danger: #ff5c6c;
+  --radius: 0px;
+  --radius-sm: 2px;
+  --mono: ui-monospace, "JetBrains Mono", "Cascadia Mono", monospace;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; scrollbar-color: var(--surface-3) transparent; scrollbar-width: thin; }
+
+html, body, #app { height: 100%; margin: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 500 13.5px/1.45 "Inter", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  overflow: hidden;
+}
+
+button, input, select { font: inherit; color: inherit; }
+
+/* ---------- botones ---------- */
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 34px; padding: 0 14px; border-radius: var(--radius-sm);
+  background: var(--surface-2); border: 1px solid var(--border-strong);
+  cursor: pointer; white-space: nowrap; transition: background .1s, border-color .1s;
+}
+.btn:hover:not(:disabled) { background: var(--surface-3); border-color: #4a4a52; }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #0d0d0e; font-weight: 600; }
+.btn.primary:hover:not(:disabled) { background: var(--accent-2); border-color: var(--accent-2); }
+.btn.danger { background: transparent; border-color: var(--danger); color: var(--danger); }
+.btn.danger:hover:not(:disabled) { background: #ff5c6c1a; }
+.btn.ghost { background: transparent; border-color: transparent; }
+.btn.ghost:hover:not(:disabled) { background: var(--surface-2); border-color: var(--border); }
+.btn.icon { width: 34px; padding: 0; }
+.btn.sm { height: 28px; padding: 0 10px; font-size: 12.5px; }
+.btn.sm.icon { width: 28px; padding: 0; }
+
+/* ---------- controles ---------- */
+
+.input {
+  height: 34px; padding: 0 10px; border-radius: var(--radius-sm);
+  background: var(--bg); border: 1px solid var(--border-strong); outline: none;
+  user-select: text;
+}
+.input:focus { border-color: var(--accent); }
+
+.segmented { display: inline-flex; border: 1px solid var(--border-strong); }
+.segmented button {
+  height: 32px; padding: 0 16px; border: 0; border-right: 1px solid var(--border-strong);
+  background: transparent; color: var(--text-2); cursor: pointer;
+}
+.segmented button:last-child { border-right: 0; }
+.segmented button:hover { color: var(--text); background: var(--surface-2); }
+.segmented button.active { background: var(--text); color: var(--bg); }
+
+.chip {
+  height: 26px; padding: 0 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-strong);
+  background: transparent; color: var(--text-2); cursor: pointer; font-size: 12px;
+}
+.chip:hover { color: var(--text); border-color: #4a4a52; }
+.chip.active { background: var(--accent); border-color: var(--accent); color: #0d0d0e; }
+
+input[type="range"] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 0;
+  background: linear-gradient(90deg, var(--accent) var(--fill, 50%), var(--surface-3) var(--fill, 50%));
+  outline: none; cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 12px; height: 16px; border-radius: 0; background: var(--text); border: 0;
+}
+input[type="range"]::-moz-range-thumb { width: 12px; height: 16px; border-radius: 0; background: var(--text); border: 0; }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+
+.label {
+  font-size: 10.5px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--text-3);
+}
+.muted { color: var(--text-2); }
+.faint { color: var(--text-3); }
+.mono { font-family: var(--mono); }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: var(--surface-3); }
+::-webkit-scrollbar-track { background: transparent; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { animation: spin .8s linear infinite; }

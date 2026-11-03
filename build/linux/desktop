@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Name=D75 Studio
+Comment=Configurador del teclado Weikav D75
+# The Exec line includes %u to pass the URL to the application
+Exec=/usr/local/bin/d75-studio %u
+Terminal=false
+Type=Application
+Icon=d75-studio
+Categories=Utility;
+StartupWMClass=d75-studio
+
+ 

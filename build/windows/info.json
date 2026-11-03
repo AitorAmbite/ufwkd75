@@ -1,0 +1,15 @@
+{
+	"fixed": {
+		"file_version": "0.1.0"
+	},
+	"info": {
+		"0000": {
+			"ProductVersion": "0.1.0",
+			"CompanyName": "aguacate",
+			"FileDescription": "Configurador del teclado Weikav D75",
+			"LegalCopyright": "© 2026, My Company",
+			"ProductName": "D75 Studio",
+			"Comments": "This is a comment"
+		}
+	}
+}
