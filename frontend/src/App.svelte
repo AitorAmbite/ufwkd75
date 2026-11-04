@@ -6,6 +6,7 @@
   import KeysPage from "./pages/KeysPage.svelte";
   import LightingPage from "./pages/LightingPage.svelte";
   import SettingsPage from "./pages/SettingsPage.svelte";
+  import MacrosPage from "./pages/MacrosPage.svelte";
   import { app, init, isApplied, isSaved, saveProfile, applyToKeyboard, errorText } from "./lib/state.svelte";
   import { paint } from "./lib/light.svelte";
   import { t } from "./lib/i18n.svelte";
@@ -15,7 +16,6 @@
   onMount(() => {
     init().catch((e) => (error = errorText(e)));
   });
-
 
   const applied = $derived(app.profile ? isApplied() : true);
   const saved = $derived(app.profile ? isSaved() : true);
@@ -64,6 +64,7 @@
       {:else if app.profile && app.meta}
         {#if app.page === "keys"}<KeysPage />
         {:else if app.page === "light"}<LightingPage />
+        {:else if app.page === "macros"}<MacrosPage />
         {:else}<SettingsPage />{/if}
       {/if}
     </main>

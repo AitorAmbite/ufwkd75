@@ -1,8 +1,10 @@
 package d75
 
 import (
+	"encoding/json"
 	"errors"
 	"os"
+	"path/filepath"
 	"runtime"
 )
 
@@ -15,10 +17,16 @@ type Meta struct {
 	CustomEffect int      `json:"customEffect"`
 	Default      Profile  `json:"default"`
 	Platform     string   `json:"platform"`
+	MaxMacros    int      `json:"maxMacros"`
+	MaxEvents    int      `json:"maxMacroEvents"`
+	MacroBase    int      `json:"macroCodeBase"`
+	MinDelay     int      `json:"minMacroDelay"`
+	MaxDelay     int      `json:"maxMacroDelay"`
 }
 
 func GetMeta() Meta {
-	return Meta{layout, codes, effects[:], palette, customLED, DefaultProfile(), runtime.GOOS}
+	return Meta{layout, codes, effects[:], palette, customLED, DefaultProfile(), runtime.GOOS,
+		maxMacros, maxMacroEvents, macroCodeBase, minMacroDelay, maxMacroDelay}
 }
 
 // Status describe la conexión con el teclado.
@@ -122,4 +130,46 @@ func normalize(p *Profile) {
 			p.Layers[i] = map[string]Assign{}
 		}
 	}
+	if p.Macros == nil {
+		p.Macros = []Macro{}
+	}
+}
+
+// ExportProfile escribe un perfil en un archivo elegido por el usuario (mismo formato que los perfiles guardados).
+func ExportProfile(path string, p Profile) error {
+	normalize(&p)
+	if _, err := buildAll(&p); err != nil {
+		return err
+	}
+	if filepath.Ext(path) == "" {
+		path += ".json"
+	}
+	data, err := json.MarshalIndent(p, "", "  ")
+	if err != nil {
+		return err
+	}
+	if err := os.WriteFile(path, data, 0o644); err != nil {
+		return newError(ErrFile, path, err)
+	}
+	return nil
+}
+
+// ImportProfile lee un perfil de un archivo y lo guarda como perfil nuevo; devuelve el nombre asignado.
+func ImportProfile(path string) (string, Profile, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return "", Profile{}, newError(ErrFile, path, err)
+	}
+	p, err := parseProfile(data)
+	if err != nil {
+		return "", Profile{}, err
+	}
+	name, err := uniqueProfileName(path)
+	if err != nil {
+		return "", Profile{}, err
+	}
+	if err := SaveProfile(name, p); err != nil {
+		return "", Profile{}, err
+	}
+	return name, p, nil
 }

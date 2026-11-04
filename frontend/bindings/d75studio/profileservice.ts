@@ -14,8 +14,26 @@ import { Call as $Call, CancellablePromise as $CancellablePromise } from "@wails
 // @ts-ignore: Unused imports
 import * as d75$0 from "./internal/d75/models.js";
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import * as $models from "./models.js";
+
 export function Delete(name: string): $CancellablePromise<void> {
     return $Call.ByID(4049605311, name);
+}
+
+/**
+ * Export pide dónde guardar y escribe el perfil; devuelve false si el usuario cancela.
+ */
+export function Export(title: string, filename: string, p: d75$0.Profile): $CancellablePromise<boolean> {
+    return $Call.ByID(4108619714, title, filename, p);
+}
+
+/**
+ * Import pide un archivo, lo valida y lo guarda como perfil nuevo.
+ */
+export function Import(title: string): $CancellablePromise<$models.Imported> {
+    return $Call.ByID(3812619321, title);
 }
 
 export function List(): $CancellablePromise<string[] | null> {

@@ -84,3 +84,39 @@ func (ProfileService) List() ([]string, error)               { return d75.ListPr
 func (ProfileService) Load(name string) (d75.Profile, error) { return d75.LoadProfile(name) }
 func (ProfileService) Save(name string, p d75.Profile) error { return d75.SaveProfile(name, p) }
 func (ProfileService) Delete(name string) error              { return d75.DeleteProfile(name) }
+
+const profileFilter = "*.json"
+
+// Export pide dónde guardar y escribe el perfil; devuelve false si el usuario cancela.
+func (ProfileService) Export(title, filename string, p d75.Profile) (bool, error) {
+	path, err := application.Get().Dialog.SaveFile().
+		SetMessage(title).
+		SetFilename(filename + ".json").
+		AddFilter("D75 Studio (JSON)", profileFilter).
+		CanCreateDirectories(true).
+		PromptForSingleSelection()
+	if err != nil || path == "" {
+		return false, err
+	}
+	return true, d75.ExportProfile(path, p)
+}
+
+// Imported es un perfil leído de un archivo y guardado con Name. Name vacío: el usuario canceló.
+type Imported struct {
+	Name    string      `json:"name"`
+	Profile d75.Profile `json:"profile"`
+}
+
+// Import pide un archivo, lo valida y lo guarda como perfil nuevo.
+func (ProfileService) Import(title string) (Imported, error) {
+	path, err := application.Get().Dialog.OpenFile().
+		SetTitle(title).
+		AddFilter("D75 Studio (JSON)", profileFilter).
+		CanChooseFiles(true).
+		PromptForSingleSelection()
+	if err != nil || path == "" {
+		return Imported{}, err
+	}
+	name, p, err := d75.ImportProfile(path)
+	return Imported{name, p}, err
+}

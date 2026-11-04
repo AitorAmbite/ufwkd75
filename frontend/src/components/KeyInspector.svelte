@@ -1,6 +1,8 @@
 <script lang="ts">
   import Icon from "../lib/Icon.svelte";
-  import { app, MODS, layerName, keyByName, layerMap, assign, resetKey, assignLabel, codeLabel } from "../lib/state.svelte";
+  import {
+    app, MODS, layerName, keyByName, layerMap, assign, resetKey, assignLabel, codeLabel, macroIndex, macroCode,
+  } from "../lib/state.svelte";
   import { t, tKey, tCode, tGroup } from "../lib/i18n.svelte";
 
   let query = $state("");
@@ -9,18 +11,27 @@
   const key = $derived(app.selected ? keyByName(app.selected) : null);
   const current = $derived(key ? layerMap()[key.name] : undefined);
   const mods = $derived(current?.mods ?? 0);
-  const groups = $derived(["all", ...new Set((app.meta?.codes ?? []).map((c) => c.group))]);
+  const isMacro = $derived(current ? macroIndex(current.code) >= 0 : false);
+  // Las macros del perfil se asignan como un grupo más (código 0xF0 + n)
+  const allCodes = $derived([
+    ...(app.meta?.codes ?? []),
+    ...(app.profile?.macros ?? []).map((m, i) => ({ code: macroCode(i), label: codeLabel(macroCode(i)), group: "macro" })),
+  ]);
+  const groups = $derived(["all", ...new Set(allCodes.map((c) => c.group))]);
   const visible = $derived(
-    (app.meta?.codes ?? []).filter((c) => {
+    allCodes.filter((c) => {
       const q = query.trim().toLowerCase();
-      if (q) return tCode(c.code, c.label).toLowerCase().includes(q) || tGroup(c.group).toLowerCase().includes(q);
+      if (q) return labelOf(c).toLowerCase().includes(q) || tGroup(c.group).toLowerCase().includes(q);
       return group === "all" || c.group === group;
     }),
   );
   const remaps = $derived(Object.entries(app.profile ? layerMap() : {}));
 
+  const labelOf = (c: { code: number; label: string; group: string }) =>
+    c.group === "macro" ? c.label : tCode(c.code, c.label);
+
   function toggleMod(bit: number) {
-    if (!key) return;
+    if (!key || isMacro) return;
     const code = current?.code ?? key.default;
     assign(key.name, code, mods ^ bit);
   }
@@ -42,7 +53,7 @@
       <div class="label">{t("inspector.modifiers")}</div>
       <div class="mods">
         {#each MODS as [bit, name]}
-          <button class="chip" class:active={mods & bit} onclick={() => toggleMod(bit)}>{name}</button>
+          <button class="chip" class:active={mods & bit} disabled={isMacro} onclick={() => toggleMod(bit)}>{name}</button>
         {/each}
       </div>
     </div>
@@ -64,9 +75,9 @@
           <button
             class="code"
             class:active={current ? current.code === c.code : key.default === c.code}
-            onclick={() => assign(key.name, c.code, mods)}
+            onclick={() => assign(key.name, c.code, c.group === "macro" ? 0 : mods)}
             title={tGroup(c.group)}
-          >{tCode(c.code, c.label)}</button>
+          >{labelOf(c)}</button>
         {/each}
         {#if visible.length === 0}<p class="faint small">{t("inspector.noMatch", { q: query })}</p>{/if}
       </div>

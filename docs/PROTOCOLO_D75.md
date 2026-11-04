@@ -59,8 +59,14 @@ Envía siempre las tres capas: lo que pongas a cero en una capa se queda a cero.
 [0]=07 [1]=05 [2]=01 [3]=n (0-9)
 [8..9]   repeticiones, uint16 big-endian
 [10..]   eventos de 3 bytes: [ (delay>>8) | 0x80 si pulsar, delay & 0xFF, usage HID ]
-         retardo mínimo 20 ms, máximo 256 bytes de datos (unos 84 eventos)
+         retardo mínimo 20 ms, máximo 256 bytes de datos (84 eventos)
 ```
+
+Repeticiones (`macroOptionNumber` en la app oficial): `1..65534` = número de veces,
+`0xFFFF` = mientras se mantiene pulsada, `0x0000` = hasta volver a pulsar (la app guarda
+65536, que al escribirse en el buffer queda en 0). El retardo es de 15 bits (máx. 32767 ms)
+porque el bit alto marca pulsar/soltar. La app numera las macros por orden de uso; D75 Studio
+envía la macro n del perfil en el hueco n y la asigna con el código `0xF0 + n`.
 
 ### cmd 2: efecto LED
 

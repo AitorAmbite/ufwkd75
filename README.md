@@ -4,8 +4,9 @@ Configurador de escritorio para el teclado **Weikav D75** (USB `0603:0351`, dong
 Hecho con [Wails 3](https://v3.wails.io) (Go + Svelte).
 
 - **Teclas**: reasignación en las 3 capas (Normal, Fn, Fn2), combinaciones con modificadores, multimedia, ratón…
+- **Macros**: hasta 10 secuencias grabadas tecleando, con retardos editables y repetición (N veces, mientras se mantiene o hasta volver a pulsar).
 - **Iluminación**: los 20 efectos del firmware y modo personalizado con RGB tecla a tecla, degradados y arcoíris.
-- **Perfiles**: guardados como JSON en `~/.config/d75/profiles` (Linux) o `%AppData%\d75\profiles` (Windows).
+- **Perfiles**: guardados como JSON en `~/.config/d75/profiles` (Linux) o `%AppData%\d75\profiles` (Windows). Se pueden exportar e importar como archivo para compartirlos.
 - **Detectar**: pulsa una tecla del teclado real y se selecciona en pantalla.
 
 La configuración se guarda en el propio teclado: una vez aplicada funciona en cualquier ordenador sin software.

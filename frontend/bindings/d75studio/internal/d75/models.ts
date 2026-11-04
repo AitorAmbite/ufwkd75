@@ -50,6 +50,22 @@ export interface LED {
     "custom"?: { [_ in string]?: number[] } | null;
 }
 
+export interface Macro {
+    "name": string;
+    "mode": string;
+    "count"?: number;
+    "events": MacroEvent[] | null;
+}
+
+/**
+ * MacroEvent pulsa o suelta una tecla (usage HID) y espera Delay ms antes del siguiente evento.
+ */
+export interface MacroEvent {
+    "code": number;
+    "down": boolean;
+    "delay": number;
+}
+
 /**
  * Meta es todo lo que la interfaz necesita para dibujar el teclado y sus opciones.
  */
@@ -61,6 +77,11 @@ export interface Meta {
     "customEffect": number;
     "default": Profile;
     "platform": string;
+    "maxMacros": number;
+    "maxMacroEvents": number;
+    "macroCodeBase": number;
+    "minMacroDelay": number;
+    "maxMacroDelay": number;
 }
 
 /**
@@ -71,6 +92,7 @@ export interface Profile {
     "layers": ({ [_ in string]?: Assign } | null)[];
     "led": LED;
     "debounce": number;
+    "macros": Macro[] | null;
 }
 
 /**

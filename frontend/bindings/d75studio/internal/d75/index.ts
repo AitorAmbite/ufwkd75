@@ -7,6 +7,8 @@ export type {
     Key,
     KeyEvent,
     LED,
+    Macro,
+    MacroEvent,
     Meta,
     Profile,
     Status

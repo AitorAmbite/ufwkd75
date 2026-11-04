@@ -182,6 +182,9 @@ func buildKeymap(p *Profile) ([]byte, error) {
 			if a.Code < 0 || a.Code > 0xFF || a.Mods < 0 || a.Mods > 0x0F {
 				return nil, newError(ErrInvalidAssign, fmt.Sprintf("%s %+v", name, a), nil)
 			}
+			if n, ok := macroIndex(a.Code); ok && (n >= len(p.Macros) || a.Mods != 0) {
+				return nil, newError(ErrInvalidAssign, fmt.Sprintf("%s: macro %d", name, n+1), nil)
+			}
 			buf[base+i*2] = 0x80 | byte(a.Mods)
 			buf[base+i*2+1] = byte(a.Code)
 		}
@@ -230,6 +233,10 @@ func buildAll(p *Profile) ([][]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	macros, err := buildMacros(p)
+	if err != nil {
+		return nil, err
+	}
 	led, err := buildLED(p.LED)
 	if err != nil {
 		return nil, err
@@ -237,6 +244,6 @@ func buildAll(p *Profile) ([][]byte, error) {
 	if p.Debounce < 1 || p.Debounce > 50 {
 		return nil, newError(ErrDebounceRange, fmt.Sprint(p.Debounce), nil)
 	}
-	reports := append([][]byte{keymap}, led...)
+	reports := append(append([][]byte{keymap}, macros...), led...)
 	return append(reports, cmd8(9, byte(p.Debounce))), nil
 }

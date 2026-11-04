@@ -1,10 +1,10 @@
 import { Events } from "@wailsio/runtime";
 import { SvelteSet } from "svelte/reactivity";
 import { KeyboardService, ProfileService } from "../../bindings/d75studio";
-import type { Assign, KeyEvent, Meta, Profile, Status } from "../../bindings/d75studio/internal/d75/models";
+import type { Assign, KeyEvent, Macro, Meta, Profile, Status } from "../../bindings/d75studio/internal/d75/models";
 import { t, tCode, tError } from "./i18n.svelte";
 
-export type Page = "keys" | "light" | "settings";
+export type Page = "keys" | "light" | "macros" | "settings";
 
 export const MODS: [number, string][] = [[1, "Ctrl"], [2, "Shift"], [4, "Alt"], [8, "Win"]];
 export const layerName = (i: number) => t(`layer.${i}` as "layer.0");
@@ -71,6 +71,8 @@ export function errorText(e: unknown): string {
 export const keyByName = (name: string) => app.meta!.layout!.find((k) => k.name === name)!;
 
 export function codeLabel(code: number): string {
+  const m = macroAt(code);
+  if (m) return t("macros.keyLabel", { name: m.name });
   const c = app.meta!.codes!.find((c) => c.code === code);
   return c ? tCode(c.code, c.label) : "0x" + code.toString(16).padStart(2, "0");
 }
@@ -98,6 +100,54 @@ export function assign(name: string, code: number, mods: number) {
 
 export function resetKey(name: string, layer = app.layer) {
   delete layerMap(layer)[name];
+}
+
+// ---------- macros ----------
+
+export function macros(): Macro[] {
+  const p = app.profile!;
+  if (!p.macros) p.macros = [];
+  return p.macros;
+}
+
+/** Índice de la macro que asigna un código del keymap (0xF0 + n), o -1. */
+export function macroIndex(code: number): number {
+  const n = code - (app.meta?.macroCodeBase ?? 0xf0);
+  return n >= 0 && n < (app.meta?.maxMacros ?? 10) ? n : -1;
+}
+
+const macroAt = (code: number) => {
+  const n = macroIndex(code);
+  return n >= 0 ? app.profile?.macros?.[n] : undefined;
+};
+
+export const macroCode = (n: number) => app.meta!.macroCodeBase + n;
+
+export function addMacro(): number {
+  const list = macros();
+  list.push({ name: t("macros.defaultName", { n: list.length + 1 }), mode: "count", count: 1, events: [] });
+  return list.length - 1;
+}
+
+/** Teclas (capa y nombre) que tienen asignada la macro n. */
+export function macroUsers(n: number): { layer: number; name: string }[] {
+  const code = macroCode(n);
+  return (app.profile?.layers ?? []).flatMap((map, layer) =>
+    Object.entries(map ?? {}).filter(([, a]) => a?.code === code).map(([name]) => ({ layer, name })),
+  );
+}
+
+/** Borra la macro n: las teclas que la usaban vuelven a su función original y las siguientes se renumeran. */
+export function deleteMacro(n: number) {
+  const base = app.meta!.macroCodeBase;
+  for (const map of app.profile!.layers) {
+    for (const [name, a] of Object.entries(map ?? {})) {
+      const i = macroIndex(a!.code);
+      if (i === n) delete map![name];
+      else if (i > n) a!.code = base + i - 1;
+    }
+  }
+  macros().splice(n, 1);
 }
 
 // ---------- perfiles y teclado ----------
@@ -165,6 +215,39 @@ export async function saveProfile(asNew = false) {
     app.savedJSON = JSON.stringify(snap);
     await refreshProfiles();
     toast(t("toast.saved", { name }));
+  } catch (e) {
+    toast(errorText(e), "error");
+  }
+}
+
+/** Exporta lo que hay en el editor (guardado o no) a un archivo elegido por el usuario. */
+export async function exportProfile() {
+  try {
+    const snap = $state.snapshot(app.profile!) as Profile;
+    const ok = await ProfileService.Export(t("dialog.exportTitle"), app.profileName || "d75-perfil", snap);
+    if (ok) toast(t("toast.exported"));
+  } catch (e) {
+    toast(errorText(e), "error");
+  }
+}
+
+/** Importa un archivo como perfil nuevo y lo abre. */
+export async function importProfile() {
+  if (!isApplied() && !isSaved()) {
+    const ok = await ask({
+      title: t("dialog.discardTitle"),
+      message: t("dialog.importDiscardText"),
+      confirm: t("dialog.discard"),
+      danger: true,
+    });
+    if (!ok) return;
+  }
+  try {
+    const res = await ProfileService.Import(t("dialog.importTitle"));
+    if (!res.name) return;
+    await refreshProfiles();
+    loadProfile(res.profile, res.name);
+    toast(t("toast.imported", { name: res.name }));
   } catch (e) {
     toast(errorText(e), "error");
   }

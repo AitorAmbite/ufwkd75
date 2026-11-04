@@ -20,8 +20,11 @@ const (
 	ErrUnknownKey    = "unknown_key"
 	ErrInvalidAssign = "invalid_assignment"
 	ErrInvalidLED    = "invalid_led"
+	ErrInvalidMacro  = "invalid_macro"
 	ErrDebounceRange = "debounce_range"
 	ErrNoCollection  = "no_collection"
+	ErrInvalidFile   = "invalid_file"
+	ErrFile          = "file_failed"
 )
 
 func (e *Error) Error() string {

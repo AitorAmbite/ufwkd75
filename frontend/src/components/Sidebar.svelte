@@ -1,13 +1,14 @@
 <script lang="ts">
   import Icon from "../lib/Icon.svelte";
   import {
-    app, isSaved, newProfile, openProfile, deleteProfile, installPermissions, type Page,
+    app, isSaved, newProfile, openProfile, deleteProfile, importProfile, exportProfile, installPermissions, type Page,
   } from "../lib/state.svelte";
   import { t, tError } from "../lib/i18n.svelte";
 
   const nav: { id: Page; icon: string }[] = [
     { id: "keys", icon: "keyboard" },
     { id: "light", icon: "sun" },
+    { id: "macros", icon: "macro" },
     { id: "settings", icon: "settings" },
   ];
 </script>
@@ -32,7 +33,11 @@
 
   <div class="section-head">
     <span class="label">{t("profiles.title")}</span>
-    <button class="btn ghost sm icon" title={t("profiles.new")} onclick={newProfile}><Icon name="plus" size={16} /></button>
+    <div class="head-actions">
+      <button class="btn ghost sm icon" title={t("profiles.import")} onclick={importProfile}><Icon name="upload" size={15} /></button>
+      <button class="btn ghost sm icon" title={t("profiles.export")} disabled={!app.profile} onclick={exportProfile}><Icon name="download" size={15} /></button>
+      <button class="btn ghost sm icon" title={t("profiles.new")} onclick={newProfile}><Icon name="plus" size={16} /></button>
+    </div>
   </div>
 
   <div class="profiles">
@@ -93,6 +98,7 @@
   .nav-item.active { border-left-color: var(--accent); background: var(--surface); color: var(--text); }
 
   .section-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 10px 6px 16px; }
+  .head-actions { display: flex; gap: 2px; }
   .profiles { flex: 1; overflow-y: auto; display: flex; flex-direction: column; min-height: 0; }
   .profile { display: flex; align-items: center; color: var(--text-2); border-left: 2px solid transparent; }
   .profile.unsaved { gap: 10px; height: 32px; padding: 0 14px; font-style: italic; }
